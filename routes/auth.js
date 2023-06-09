@@ -47,7 +47,7 @@ router.post("/login", async (req, res, next) => {
             //     .send("You need to confirm your email before continuing ");
             // }
             try {
-              const secret = process.env.JWT_SECRET + possibleUser.name;
+              const secret = process.env.JWT_SECRET + possibleUser.passwordHash;
               const payload = {
                 id: possibleUser.id,
                 email: possibleUser.email,
@@ -71,7 +71,7 @@ router.post("/login", async (req, res, next) => {
                   secure: process.env.NODE_ENV === "production",
                 })
                 .status(200)
-                .send({ name: possibleUser.name });
+                .send({ name: possibleUser.name, email: possibleUser.email });
 
               // res.send(role[0].role);
             } catch (err) {
@@ -97,16 +97,16 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.post("/register", async (req, res, next) => {
-  const token = req.body.token;
+  // const token = req.body.token;
   // console.log(token);
   try {
     // Sending secret key and response token to Google Recaptcha API for authentication.
-    const response = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.CAPTCHA_SECRET_KEY}&response=${token}`
-    );
+    // const response = await axios.post(
+    //   `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.CAPTCHA_SECRET_KEY}&response=${token}`
+    // );
 
     // Check response status and send back to the client-side
-    if (response.data.success) {
+    if (true || response.data.success) {
       var salt = crypto.randomBytes(16);
       crypto.pbkdf2(
         req.body.password,
@@ -141,7 +141,7 @@ router.post("/register", async (req, res, next) => {
                 secure: process.env.NODE_ENV === "production",
               })
               .status(200)
-              .send("Success");
+              .send({ name: createdUser.name, email: createdUser.email });
           } catch (err) {
             return res.status(409).json(err);
           }

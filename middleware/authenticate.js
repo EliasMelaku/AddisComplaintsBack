@@ -7,6 +7,7 @@ const User = require("../models/user")(db.sequelize, DataTypes);
 
 function authenticate(role) {
   return async (req, res, next) => {
+    // console.log(req.body);
     const possibleUser = await User.findOne({
       where: { email: req.body.email },
     });
@@ -14,10 +15,16 @@ function authenticate(role) {
     if (possibleUser) {
       const secret = process.env.JWT_SECRET + possibleUser.passwordHash;
       try {
-        // const data = jwt.verify(req.cookies.access_token, secret);
-        // if (data.role !== role) {
-        //   return res.status(401).send("Forbidden");
-        // }
+        console.log(req.cookies.access_token);
+        const data = jwt.verify(req.cookies.access_token, secret);
+        if (
+          data.role !== possibleUser.role ||
+          data.role !== role ||
+          data.email !== req.body.email ||
+          data.id !== possibleUser.id
+        ) {
+          return res.status(401).send("Role doesn't match so Forbidden");
+        }
         req.user = possibleUser;
         // req.role = data.role;
         return next();

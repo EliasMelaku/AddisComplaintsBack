@@ -10,12 +10,12 @@ const { authenticate } = require("../middleware/authenticate");
 
 const router = express.Router();
 
-router.get("/", authenticate("user"), async (req, res, next) => {
+router.post("/", authenticate("user"), async (req, res, next) => {
   try {
     const feedbacks = await db.Feedback.findAll({
       where: { email: req.user.email },
     });
-    console.log(feedbacks);
+    res.send(feedbacks);
   } catch {
     (err) => console.log(err);
   }
@@ -24,22 +24,34 @@ router.get("/", authenticate("user"), async (req, res, next) => {
 router.post("/create", async (req, res, next) => {
   // console.log(req.files);
   let uploadFile = req.files.pdf;
-  const fileName = ("../" + uploadFile.name).toString();
+  // console.log(uploadFile);
+  const name = uploadFile.name.split(".")[0];
+  const extension = uploadFile.name.split(".")[1];
+  const fileName = (name + Date.now() + "." + extension).toString();
+  // console.log(fileName);
 
-  if (fileName.includes("/")) {
+  if (fileName.includes("/") || fileName.includes("\\")) {
     res.status(400).send("Error with filename");
   }
   // console.log(fileName);
   // res.send("success");
   else {
-    uploadFile.mv(`${__dirname}/../../${fileName}`, function (err) {
+    uploadFile.mv(`${__dirname}/../public/${fileName}`, function (err) {
       if (err) {
         return res.status(500).send(err);
       }
-      res.json({
-        file: `public/${req.files.pdf.name}`,
-      });
     });
+    const createdUser = await db.Feedback.create({
+      // username: req.body.username,
+      email: req.body.email,
+      name: req.body.name,
+      comment: req.body.comment,
+      pdf: fileName,
+    });
+    const status = await createdUser.save();
+    if (status) {
+      res.send("WooHoo");
+    }
   }
 });
 
