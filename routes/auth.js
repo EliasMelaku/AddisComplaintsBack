@@ -3,10 +3,12 @@ const crypto = require("crypto");
 const db = require("../models");
 // const { DataTypes } = require("sequelize");
 // const User = require("../models/user")(db.sequelize, DataTypes);
-const axios = require("axios");
+// const axios = require("axios");
 
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+
+const { checkCaptcha } = require("../middleware/checkCaptcha");
 
 const router = express.Router();
 
@@ -16,12 +18,13 @@ router.post("/login", async (req, res, next) => {
   // console.log(token);
   try {
     // Sending secret key and response token to Google Recaptcha API for authentication.
-    const response = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.CAPTCHA_SECRET_KEY}&response=${token}`
-    );
+    // const response = await axios.post(
+    //   `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.CAPTCHA_SECRET_KEY}&response=${token}`
+    // );
+    const response = await checkCaptcha(token);
 
     // Check response status and send back to the client-side
-    if (response.data.success) {
+    if (response === true) {
       const possibleUser = await db.User.findOne({
         where: { email: req.body.email },
       });
@@ -156,6 +159,14 @@ router.post("/register", async (req, res, next) => {
     console.error(error);
     res.status(500).send("Error verifying reCAPTCHA");
   }
+});
+
+router.post("/logout", (req, res, next) => {
+  res.clearCookie("access_token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+  });
+  res.end();
 });
 
 module.exports = router;
