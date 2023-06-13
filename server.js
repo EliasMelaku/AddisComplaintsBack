@@ -8,6 +8,7 @@ const cookieParser = require("cookie-parser");
 // import the different routes for Auth
 const auth = require("./routes/auth");
 const feedback = require("./routes/feedback");
+const admin = require("./routes/admin");
 const fileUpload = require("express-fileupload");
 
 app.use(express.json({ extended: false }));
@@ -36,11 +37,12 @@ app.use(function (req, res, next) {
 // Handle Auth related routes
 app.use("/api/auth", auth);
 app.use("/api/feedback", feedback);
+app.use("/api/admin", admin);
 
 app.get(["/", "/home"], (req, res) => {
   res.send("This is the landing page");
 });
 
-app.listen(5000, () => {
-  console.log("Server Running on Port: 5000");
+app.listen(8080, () => {
+  console.log("Server Running on Port: 8080");
 });

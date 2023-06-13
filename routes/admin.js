@@ -10,11 +10,14 @@ const { authenticate } = require("../middleware/authenticate");
 
 const router = express.Router();
 
-router.post(
-  "/getAllUsers",
-  authenticate("admin"),
-  async (req, res, next) => {}
-);
+router.get("/getAllUsers", authenticate("admin"), async (req, res, next) => {
+  try {
+    const users = await User.findAll();
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 router.post(
   "/getAllFeedback",

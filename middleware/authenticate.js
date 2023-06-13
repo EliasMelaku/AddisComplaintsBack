@@ -9,7 +9,7 @@ function authenticate(role) {
   return async (req, res, next) => {
     // console.log(req.body);
     const possibleUser = await User.findOne({
-      where: { email: req.body.email },
+      where: { email: req.cookies.email },
     });
 
     if (possibleUser) {
