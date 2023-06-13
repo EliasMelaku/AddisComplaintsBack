@@ -53,8 +53,8 @@ router.post("/create", authenticate("user"), async (req, res, next) => {
   } else {
     const createdUser = await db.Feedback.create({
       // username: req.body.username,
-      email: req.body.email,
-      name: req.body.name,
+      email: req.user.email,
+      name: req.user.name,
       comment: req.body.comment,
     });
     const status = await createdUser.save();
