@@ -21,7 +21,7 @@ router.post("/", authenticate("user"), async (req, res, next) => {
   }
 });
 
-router.post("/create", async (req, res, next) => {
+router.post("/create", authenticate("user"), async (req, res, next) => {
   // console.log(req.files);
   let uploadFile;
   if (req.files !== null) {

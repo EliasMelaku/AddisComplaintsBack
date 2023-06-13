@@ -42,7 +42,6 @@ router.put(
       if (user) {
         user.update({ isBanned: true });
         await user.save();
-        console.log(user);
         res.status(200).json({ message: "User banned!" });
       } else {
         res.status(404).json({ message: "User not found!" });

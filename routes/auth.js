@@ -9,6 +9,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
 const { checkCaptcha } = require("../middleware/checkCaptcha");
+const { authenticate } = require("../middleware/authenticate");
 
 const router = express.Router();
 
@@ -29,6 +30,10 @@ router.post("/login", async (req, res, next) => {
         where: { email: req.body.email },
       });
       if (possibleUser) {
+        if (possibleUser.isBanned === true) {
+          res.status(401).json("You are banned!");
+        }
+
         crypto.pbkdf2(
           req.body.password,
           possibleUser.passwordSalt,
@@ -73,12 +78,12 @@ router.post("/login", async (req, res, next) => {
                   httpOnly: true,
                   secure: process.env.NODE_ENV === "production",
                 })
-                .cookie("email", userPayLoad.email, {
+                .cookie("userId", possibleUser.id, {
                   httpOnly: true,
                   secure: process.env.NODE_ENV === "production",
                 })
                 .status(200)
-                .send({ name: possibleUser.name, email: possibleUser.email });
+                .send(userPayLoad);
 
               // res.send(role[0].role);
             } catch (err) {
@@ -165,11 +170,21 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
+router.get("/check", authenticate(), async (req, res, next) => {
+  const { email, role, name } = req.user;
+  res.send({ email, role, name });
+});
+
 router.post("/logout", (req, res, next) => {
-  res.clearCookie("access_token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-  });
+  res
+    .clearCookie("access_token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    })
+    .clearCookie("userId", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
   res.end();
 });
 
