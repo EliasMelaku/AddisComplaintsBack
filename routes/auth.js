@@ -73,6 +73,10 @@ router.post("/login", async (req, res, next) => {
                   httpOnly: true,
                   secure: process.env.NODE_ENV === "production",
                 })
+                .cookie("userId", possibleUser.id, {
+                  httpOnly: true,
+                  secure: process.env.NODE_ENV === "production",
+                })
                 .status(200)
                 .send({ name: possibleUser.name, email: possibleUser.email });
 

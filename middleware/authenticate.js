@@ -9,18 +9,18 @@ function authenticate(role) {
   return async (req, res, next) => {
     // console.log(req.body);
     const possibleUser = await User.findOne({
-      where: { email: req.body.email },
+      where: { id: req.cookies.userId },
     });
 
     if (possibleUser) {
       const secret = process.env.JWT_SECRET + possibleUser.passwordHash;
       try {
-        console.log(req.cookies.access_token);
+        // console.log(req.cookies.access_token);
         const data = jwt.verify(req.cookies.access_token, secret);
         if (
           data.role !== possibleUser.role ||
           data.role !== role ||
-          data.email !== req.body.email ||
+          data.email !== possibleUser.email ||
           data.id !== possibleUser.id
         ) {
           return res.status(401).send("Role doesn't match so Forbidden");
