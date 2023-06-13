@@ -5,7 +5,7 @@ const { DataTypes } = require("sequelize");
 const User = require("../models/user")(db.sequelize, DataTypes);
 // const User = require("../database/models/user")(db.sequelize, DataTypes);
 
-function authenticate(role) {
+function authenticate(role = "any") {
   return async (req, res, next) => {
     // console.log(req.body);
     const possibleUser = await User.findOne({
@@ -15,25 +15,26 @@ function authenticate(role) {
     if (possibleUser) {
       const secret = process.env.JWT_SECRET + possibleUser.passwordHash;
       try {
-        // console.log(req.cookies.access_token);
         const data = jwt.verify(req.cookies.access_token, secret);
         if (
           data.role !== possibleUser.role ||
-          data.role !== role ||
+          (role !== "any" && data.role !== role) ||
           data.email !== possibleUser.email ||
           data.id !== possibleUser.id
         ) {
-          return res.status(401).send("Role doesn't match so Forbidden");
+          return res
+            .status(401)
+            .send("You are not authorized to view this content!");
         }
         req.user = possibleUser;
         // req.role = data.role;
         return next();
       } catch (err) {
-        return res.status(401).send(err);
+        return res.status(401).send("You are not authorized!");
         // console.log(err.JsonWebTokenError);
       }
     } else {
-      return res.status(403).send("Forbidden");
+      return res.status(403).send("You are not logged in!");
     }
   };
 }
