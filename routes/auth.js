@@ -73,6 +73,20 @@ router.post("/login", async (req, res, next) => {
               // const signIn_token = jwt.sign(payload, secret, {
               //   expiresIn: "2h",
               // });
+
+              console.log(
+                "We've reaced here ======================================================"
+              );
+              console.log(
+                "We've reaced here ======================================================"
+              );
+              console.log(
+                "We've reaced here ======================================================"
+              );
+              console.log(
+                "We've reaced here ======================================================"
+              );
+
               res
                 .cookie("access_token", access_token, {
                   httpOnly: true,
@@ -103,6 +117,7 @@ router.post("/login", async (req, res, next) => {
     }
   } catch (error) {
     // Handle any errors that occur during the reCAPTCHA verification process
+
     console.error(error);
     res.status(500).send("Error verifying reCAPTCHA");
   }

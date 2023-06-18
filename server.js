@@ -1,8 +1,15 @@
 require("dotenv").config();
 
 const express = require("express");
-const app = express();
+const fs = require("fs");
 const cors = require("cors");
+
+// var privateKey = fs.readFileSync("./certs/addis-complaint.key");
+// var certificate = fs.readFileSync("./certs/addis-complaint.crt");
+
+// var credentials = { key: privateKey, cert: certificate };
+
+const app = express();
 const cookieParser = require("cookie-parser");
 
 // import the different routes for Auth
@@ -41,6 +48,7 @@ app.use(function (req, res, next) {
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
   );
+  res.header("X-Frame-Options", "SAMEORIGIN");
   next();
 });
 
